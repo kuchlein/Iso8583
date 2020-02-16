@@ -14,7 +14,7 @@ func TestAMessage(t *testing.T) {
 	//	}
 	//	tmpl:= NewTemplate(tmplDef)
 	//	msg := NewAMessage(tmpl)
-	msg := NewIso8583(nil)
+	msg := NewIso8583("")
 	if err := msg.SetFieldValue(2, "123456789012345678"); err != nil {
 		t.Error(err)
 	}
