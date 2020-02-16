@@ -13,11 +13,11 @@ type Iso8583 struct {
 	AMessage
 }
 
-func NewIso8583(mti *string) *Iso8583 {
+func NewIso8583(mti string) *Iso8583 {
 	return &Iso8583{AMessage: *NewAMessage(mti, NewTemplate(defaultTemplate))}
 }
 
-func NewIso8583WithTemplate(mti *string, template TemplateDef) *Iso8583 {
+func NewIso8583WithTemplate(mti string, template TemplateDef) *Iso8583 {
 	return &Iso8583{AMessage: *NewAMessage(mti, NewTemplate(template))}
 }
 

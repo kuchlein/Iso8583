@@ -9,14 +9,14 @@ import (
 type CreateFieldFunc func(int) IField
 
 type AMessage struct {
-	MTI                 *string
+	MTI                 string
 	Bitmap              *Bitmap
 	MsgTemplate         *Template
 	Fields              map[int]IField
 	CreateFieldCallback CreateFieldFunc
 }
 
-func NewAMessage(mti *string, tmpl *Template) *AMessage {
+func NewAMessage(mti string, tmpl *Template) *AMessage {
 	msg := &AMessage{MsgTemplate: tmpl, MTI: mti, Fields: make(map[int]IField), Bitmap: NewBitmap(tmpl.BitmapFormatter)}
 	msg.CreateFieldCallback = msg.CreateField
 
@@ -25,8 +25,8 @@ func NewAMessage(mti *string, tmpl *Template) *AMessage {
 
 func (msg *AMessage) PackedLength() int {
 	length := 0
-	if msg.MTI != nil {
-		length += len(*msg.MTI)
+	if msg.MTI != "" {
+		length += len(msg.MTI)
 	}
 	length += msg.Bitmap.PackedLength()
 	for i := 2; i < 128; i++ {
@@ -52,9 +52,9 @@ func (msg *AMessage) ToMsg() []byte {
 	packedLength := msg.PackedLength()
 	data := make([]byte, packedLength)
 	offset := 0
-	if msg.MTI != nil {
-		copy(data[offset:], *msg.MTI)
-		offset += len(*msg.MTI)
+	if msg.MTI != "" {
+		copy(data[offset:], msg.MTI)
+		offset += len(msg.MTI)
 	}
 	bmap := msg.Bitmap.ToMsg()
 	copy(data[offset:], bmap)
@@ -76,8 +76,8 @@ func (msg *AMessage) String() string {
 
 func (msg *AMessage) ToString(prefix string) string {
 	var buffer bytes.Buffer
-	if msg.MTI != nil {
-		buffer.WriteString(prefix + "MTI" + *msg.MTI + "\n")
+	if msg.MTI != "" {
+		buffer.WriteString(prefix + "MTI" + msg.MTI + "\n")
 	}
 	for i := 2; i < 128; i++ {
 		if msg.Bitmap.IsFieldSet(i) {
