@@ -7,7 +7,7 @@ type CompositeMessage struct {
 
 
 func NewCompositeMessage(tmpl *Template, compFieldNumber int) *CompositeMessage {
-	msg := &CompositeMessage{CompositeFieldNumber:compFieldNumber, AMessage : *NewAMessage(tmpl)}
+	msg := &CompositeMessage{CompositeFieldNumber:compFieldNumber, AMessage : *NewAMessage(nil, tmpl)}
 	msg.CreateFieldCallback = msg.CreateField
 
 	return msg
