@@ -2,6 +2,7 @@ package Iso8583
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 )
@@ -47,18 +48,41 @@ func (msg *AMessage) IsFieldSet(field int) bool {
 	return msg.Bitmap.IsFieldSet(field)
 }
 
-func (msg *AMessage) ToMsg() []byte {
+func (msg *AMessage) ToBuyPassMsg() []byte {
+	header := make([]byte, 7)
+	header[2] = 0x60
+	header[3] = 0x00
+	header[4] = 0x00
+	return msg.toMsg(header)
+}
 
-	packedLength := msg.PackedLength()
-	data := make([]byte, packedLength)
+func (msg *AMessage) ToMsg() []byte {
+	return msg.toMsg(nil)
+}
+
+func (msg *AMessage) toMsg(header []byte) []byte {
 	offset := 0
+	packedLength := msg.PackedLength()
+	data := make([]byte, len(header)+packedLength)
+
+	// add header
+	if len(header) != 0 {
+		copy(data[offset:], header)
+		offset += len(header)
+	}
+
+	// add MTI
 	if msg.MTI != "" {
 		copy(data[offset:], msg.MTI)
 		offset += len(msg.MTI)
 	}
+
+	// add bitmap
 	bmap := msg.Bitmap.ToMsg()
 	copy(data[offset:], bmap)
 	offset += msg.Bitmap.PackedLength()
+
+	// add fields
 	for i := 2; i < 128; i++ {
 		if msg.Bitmap.IsFieldSet(i) {
 			field := msg.Fields[i]
@@ -66,6 +90,10 @@ func (msg *AMessage) ToMsg() []byte {
 			offset += field.PackedLength()
 		}
 	}
+
+	// update header to specify length
+	l := uint16(offset-2)
+	binary.BigEndian.PutUint16(data, l)
 
 	return data
 }
